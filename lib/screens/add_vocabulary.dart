@@ -23,6 +23,10 @@ class _AddVocabularyState extends State<AddVocabulary> {
       _wordController.text =widget.vd!.word;
       _exampleController.text=widget.vd!.exampleSentence??'';
       _definitionController.text=widget.vd!.definition;
+     WidgetsBinding.instance.addPostFrameCallback((_){
+       Provider.of<VocabularyProvider>(context, listen: false).setCheckBoxValue(widget.vd!.mastered);
+     });
+
     }
     super.initState();
   }
@@ -93,7 +97,19 @@ class _AddVocabularyState extends State<AddVocabulary> {
                     ),
                   ),
                 ),
-               
+                
+                DropdownButton(
+                  value: vocabularyProvider.dropDownSelectedCategory,
+                  items: List.generate(
+                    vocabularyProvider.allCategories.length, (index){
+                       return DropdownMenuItem(
+                        value: vocabularyProvider.allCategories[index],
+                        child: Text(vocabularyProvider.allCategories[index].name));
+                    }), 
+                  onChanged:(value){
+                    vocabularyProvider.setDropDownSelectedCategory(value!);
+                  }
+                  ),
           
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8.0,0,0.8,0),
@@ -101,7 +117,7 @@ class _AddVocabularyState extends State<AddVocabulary> {
                     children: [
                       Text("Is mastered"),
                       Checkbox(value: vocabularyProvider.checkBoxValue, onChanged: (v){
-                        vocabularyProvider.setCheckBoxValue();
+                        vocabularyProvider.setCheckBoxValue(false);
                       }),
                     ],
                   ),
@@ -111,9 +127,10 @@ class _AddVocabularyState extends State<AddVocabulary> {
                   if(_formKey.currentState!.validate()){
                   
                     VocabularyCompanion vc= VocabularyCompanion(
+                      categoryId: db.Value(vocabularyProvider.dropDownSelectedCategory!.id),
                      word: db.Value(_wordController.text),
                      definition: db.Value(_definitionController.text),
-                     exampleSentence: db.Value(_wordController.text==''?null:_wordController.text),
+                     exampleSentence: db.Value(_exampleController.text==''?null:_exampleController.text),
                      mastered: db.Value(vocabularyProvider.checkBoxValue)
                     );
 
@@ -124,10 +141,11 @@ class _AddVocabularyState extends State<AddVocabulary> {
                       }
                       else{
                          VocabularyCompanion vc= VocabularyCompanion(
+                          categoryId: db.Value(vocabularyProvider.dropDownSelectedCategory!.id),
                           id: db.Value(widget.vd!.id) ,
                      word: db.Value(_wordController.text),
                      definition: db.Value(_definitionController.text),
-                     exampleSentence: db.Value(_wordController.text==''?null:_wordController.text),
+                     exampleSentence: db.Value(_exampleController.text==''?null:_exampleController.text),
                      mastered: db.Value(vocabularyProvider.checkBoxValue)
                     );
                         await vocabularyProvider.updateVocabulary(vc);

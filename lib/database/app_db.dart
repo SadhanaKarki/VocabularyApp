@@ -14,7 +14,7 @@ LazyDatabase _openConnection(){
   });
 }
 
-@DriftDatabase(tables: [Vocabulary])
+@DriftDatabase(tables: [Vocabulary, VCategory])
 class AppDb extends _$AppDb{
   AppDb() : super(_openConnection());
 
